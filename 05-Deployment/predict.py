@@ -1,37 +1,58 @@
 import pickle
+from fastapi import FastAPI, Request
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+import uvicorn
 
 model_file = r'C:\Users\khanm375\Documents\ml_zoom\05-Deployment\model_C=1.0.bin'
 
 with open(model_file, 'rb') as f_in:
     dv, model = pickle.load(f_in)
 
+class Prediction(BaseModel):
+    churn_probability: float
+    churn: bool
 
-dv, model
+    class Config:
+        orm_mode = True
+class Customer(BaseModel):
+    gender: str
+    seniorcitizen: int
+    partner: str
+    dependents: str
+    phoneservice: str
+    multiplelines: str
+    internetservice: str
+    onlinesecurity: str
+    onlinebackup: str
+    deviceprotection: str
+    techsupport: str
+    streamingtv: str
+    streamingmovies: str
+    contract: str
+    paperlessbilling: str
+    paymentmethod: str
+    tenure: int
+    monthlycharges: float
+    totalcharges: float
 
-customer = {
-    'gender': 'female',
-    'seniorcitizen': 0,
-    'partner': 'yes',
-    'dependents': 'no',
-    'phoneservice': 'no',
-    'multiplelines': 'no_phone_service',
-    'internetservice': 'dsl',
-    'onlinesecurity': 'no',
-    'onlinebackup': 'yes',
-    'deviceprotection': 'no',
-    'techsupport': 'no',
-    'streamingtv': 'no',
-    'streamingmovies': 'no',
-    'contract': 'month-to-month',
-    'paperlessbilling': 'yes',
-    'paymentmethod': 'electronic_check',
-    'tenure': 1,
-    'monthlycharges': 29.85,
-    'totalcharges': 29.85
-}
+app = FastAPI()
 
-X = dv.transform([customer])
-score = model.predict_proba(X)[0,1]
+@app.post('/predict/' , response_model=Prediction)
+def predict(customer: Customer):
+    customer_dict = dict(customer)
+    
+    X = dv.transform([customer_dict])
 
-print('input', customer)
-print('churn probability', score)
+    y_pred = model.predict_proba(X)[0,1]
+    churn = y_pred >= 0.5
+    
+    
+    result = {
+        "churn_probability": y_pred,
+        "churn": churn
+    }
+
+    
+    return result
