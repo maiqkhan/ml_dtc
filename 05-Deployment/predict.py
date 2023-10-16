@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import uvicorn
 
-model_file = r'C:\Users\khanm375\Documents\ml_zoom\05-Deployment\model_C=1.0.bin'
+model_file = r'model_C=1.0.bin'
 
 with open(model_file, 'rb') as f_in:
     dv, model = pickle.load(f_in)
