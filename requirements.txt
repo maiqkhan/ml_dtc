@@ -1,3 +1,4 @@
+--extra-index-url https://google-coral.github.io/py-repo/
 numpy
 pandas
 ipykernel
@@ -7,3 +8,5 @@ scikit-learn
 tqdm
 fastapi[all]
 xgboost
+keras-image-helper
+tflite_runtime
